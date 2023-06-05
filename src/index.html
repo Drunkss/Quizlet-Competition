@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/dist/output.css" rel="stylesheet">
+    <title>Home</title>
+</head>
+<body class="flex flex-col">
+    <div class="h-[8%] w-full flex items-center justify-center z-50">
+        <div class=" bg-white w-[3rem] h-[0.25rem] p-[1rem] border-[5px] border-[#1f1f1f] flex items-center justify-center px-4" data-score>
+            0
+        </div>
+        <div class=" bg-white  flex-end mr-[2rem] w-[0.25rem] h-[0.25rem] p-[1rem] border-[5px] border-[#1f1f1f] flex items-center justify-center">
+            P
+        </div>
+
+    </div>
+    <div class="w-[40rem] h-[32rem] flex items-center justify-center m-auto flex-col gap-5">
+        <div class="flex flex-row items-center justify-center gap-[3rem]">
+            <button class="border-[5px] border-[#1f1f1f]" onclick="handleEvent(null,'left')">
+                <
+            </button>
+            <div class="border-[5px] border-[#1f1f1f] px-[8rem] py-[8rem] mt-[5rem]">
+                <h1 class="text-4xl font-bold text-center" data-question>Hello World</h1>
+            </div>
+            <button class="border-[5px] border-[#1f1f1f]" onclick="handleEvent(null,'right')">
+                >
+            </button>
+        </div>
+        <div class="flex items-center justify-center w-full">
+            <div class="flex flex-cols-3 gap-[5rem] w-full items-center justify-center">
+                <div class="bg-white w-[10rem] h-[10rem] border-[#1f1f1f] border-[5px] flex items-center justify-center font-bold cursor-pointer" data-choice="first" onclick="handleEvent(null,'submit',0)"></div>
+                <div class="bg-white w-[10rem] h-[10rem] border-[#1f1f1f] border-[5px] flex items-center justify-center font-bold cursor-pointer" data-choice="second" onclick="handleEvent(null,'submit',1)"></div>
+                <div class="bg-white w-[10rem] h-[10rem] border-[#1f1f1f] border-[5px] flex items-center justify-center font-bold cursor-pointer" data-choice="third" onclick="handleEvent(null,'submit',2)"></div>
+            </div>
+        </div>
+        <div>
+            
+        </div>
+    </div>
+</body>
+<script>
+
+    let listening = true
+    let oScore = 0
+    const terms = [
+        { term: 'HTML', definition: 'Hyper Text Markup Language' },
+        { term: 'CSS', definition: 'Cascading Style Sheets' },
+        { term: 'JS', definition: 'JavaScript' },
+        { term: 'DOM', definition: 'Document Object Model' },
+        { term: 'HTTP', definition: 'Hypertext Transfer Protocol' },
+        { term: 'HTTPS', definition: 'Hypertext Transfer Protocol Secure' },
+        { term: 'API', definition: 'Application Programming Interface' },
+        { term: 'JSON', definition: 'JavaScript Object Notation' },
+        { term: 'AJAX', definition: 'Asynchronous JavaScript and XML' },
+        { term: 'XML', definition: 'Extensible Markup Language' },
+        { term: 'XHTML', definition: 'Extensible Hypertext Markup Language' },
+        { term: 'XSLT', definition: 'Extensible Stylesheet Language Transformations' },
+    ]
+
+    const choices = [0,1,2]
+    let selected;
+    let current = 1
+    let currentTerm = null
+
+    document.querySelectorAll('[data-choice]')[0].classList.remove('border-[#1f1f1f]')
+    document.querySelectorAll('[data-choice]')[1].classList.remove('border-[#1f1f1f]')
+    document.querySelectorAll('[data-choice]')[2].classList.remove('border-[#1f1f1f]')
+    document.querySelectorAll('[data-choice]')[current].classList.add('border-[#1f1f1f]')
+
+    init()
+
+    document.addEventListener('keydown',handleEvent)
+
+    function handleEvent(e,type,number){
+        const correct = correctAnswer()
+        console.log(e)
+        if(e?.key === 'ArrowRight' || type=='right'){
+            if(current === 2){
+                current = 0
+                console.log(current)
+            }else{
+                current++
+                console.log(current)
+            }
+        }else if(e?.key === 'ArrowLeft' || type=='left'){
+            if(current === 0){
+                current = 2
+                console.log(current)
+            }else{
+                console.log(current)
+                current--
+            }
+        }
+        document.querySelectorAll('[data-choice]')[0].classList.remove('border-[#1f1f1f]')
+        document.querySelectorAll('[data-choice]')[1].classList.remove('border-[#1f1f1f]')
+        document.querySelectorAll('[data-choice]')[2].classList.remove('border-[#1f1f1f]')
+        document.querySelectorAll('[data-choice]')[current].classList.add('border-[#1f1f1f]')
+        if(e?.key === ' ' || type=='submit'){
+            selected = current
+
+            if(type == 'submit'){
+                selected = number
+            }
+
+            console.log(`${selected} is selected`)
+            if(document.querySelectorAll('[data-choice]')[selected].textContent === correct){
+                if(listening){
+                    handleCorrect()
+                    listening = false
+                }else{
+                    console.log('not listening')
+                }
+            }else{
+                if(listening){
+                    handleWrong()
+                    listening = false
+                }else{
+                    console.log('not listening')
+                }
+            }
+
+        }
+    }
+
+    function init(){
+        listening = true
+        let currentQuestion = terms[Math.floor(Math.random() * terms.length + 1)].definition
+        let correctAnswer = terms.find((term) => term.definition === currentQuestion).term
+        let wrongAnswers = terms.filter((term) => term.definition !== currentQuestion).map((term) => term.term)
+
+        currentTerm = currentQuestion
+
+        document.querySelectorAll('[data-choice]')[Math.floor(Math.random() * 3)].textContent = correctAnswer
+    
+        document.querySelectorAll('[data-choice]').forEach((choice) => {
+            if(choice.textContent === '' && choice.textContent !== correctAnswer){
+                choice.textContent = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)]
+            }
+        })
+
+        for(let i = 0; i < 3; i++){
+            if(document.querySelectorAll('[data-choice]')[i].textContent === ''){
+                document.querySelectorAll('[data-choice]')[i].textContent = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)]
+            }
+        }
+        //make sure answer choices do not duplicate
+        if(document.querySelectorAll('[data-choice]')[0].textContent === document.querySelectorAll('[data-choice]')[1].textContent){
+            document.querySelectorAll('[data-choice]')[1].textContent = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)]
+        }
+        if(document.querySelectorAll('[data-choice]')[0].textContent === document.querySelectorAll('[data-choice]')[2].textContent){
+            document.querySelectorAll('[data-choice]')[2].textContent = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)]
+        }
+        if(document.querySelectorAll('[data-choice]')[1].textContent === document.querySelectorAll('[data-choice]')[2].textContent){
+            document.querySelectorAll('[data-choice]')[2].textContent = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)]
+        }
+
+
+
+        document.querySelector('[data-question]').textContent = currentQuestion
+
+    }
+
+    function correctAnswer(){
+        let correctAnswer = terms.find((term) => term.definition === currentTerm).term
+        return correctAnswer
+    }
+
+    function handleCorrect(){
+        const body = document.querySelector('body')
+        body.classList.add('bg-green-500')
+
+        handleScore()
+        setTimeout(() => {
+            body.classList.remove('bg-green-500')
+            init()
+        }, 1000);
+    }
+
+    function handleWrong(){
+        const body = document.querySelector('body')
+        body.classList.add('bg-red-500')
+
+
+        handleMinusScore()
+        setTimeout(() => {
+            body.classList.remove('bg-red-500')
+            init()
+        }, 1000);
+    }
+
+    function handleScore(){
+        if(listening === false)
+            return
+        const score = document.querySelector('[data-score]')
+        score.textContent = parseInt(score.textContent) + 50
+        oScore+=50
+    }
+
+    function handleMinusScore(){
+        if(listening === false)
+            return
+
+        const score = document.querySelector('[data-score]')
+        if(parseInt(score.textContent) <= 0)
+            score.textContent = 0
+            oScore = 0
+            return
+
+        score.textContent = parseInt(score.textContent) - 25
+        oScore-=25
+    }
+
+    //made by David Eizen B)
+
+</script>
+</html>
